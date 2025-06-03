@@ -2,6 +2,8 @@ import streamlit as st
 import yfinance as yf
 import plotly.express as px
 import pandas as pd
+from data_utils import fetch_news
+
 
 st.set_page_config(page_title="📈 Stock Price Viewer", layout="centered")
 
@@ -38,6 +40,22 @@ if st.button("Fetch Stock Data"):
                     template="plotly_white"
                 )
                 st.plotly_chart(fig, use_container_width=True)
+                
+                # Fetch recent news for the ticker
+                st.markdown("---")
+                st.subheader(f"📰 Recent News Headlines About {ticker}")
+
+                articles = fetch_news(ticker)
+
+                if articles:
+                    for article in articles[:5]:  # Limit to top 5
+                        st.markdown(f"**{article['title']}**")
+                        st.write(article['description'] or "No description.")
+                        st.write(f"[Read more]({article['url']})")
+                        st.markdown("---")
+                else:
+                    st.info("No news articles found or API limit reached.")
+
             else:
                 st.warning("No data found for this range.")
         except Exception as e:
