@@ -2,13 +2,12 @@ import streamlit as st
 import yfinance as yf
 import plotly.express as px
 import pandas as pd
-from data_utils import fetch_news
+from data_utils import fetch_news, classify_sentiment
 
+st.set_page_config(page_title="Stock Sentiment Analyzer", layout="centered")
 
-st.set_page_config(page_title="📈 Stock Price Viewer", layout="centered")
-
-st.title("📊 Financial News Sentiment Analyzer (v0.1)")
-st.subheader("Live stock data viewer")
+st.title("Financial News Sentiment Analyzer (v0.2)")
+st.subheader("Live stock data viewer with sentiment analysis")
 
 ticker = st.text_input("Enter stock ticker (e.g., AAPL, TSLA, MSFT):", value="AAPL").upper()
 
@@ -48,9 +47,14 @@ if st.button("Fetch Stock Data"):
                 articles = fetch_news(ticker)
 
                 if articles:
-                    for article in articles[:5]:  # Limit to top 5
-                        st.markdown(f"**{article['title']}**")
-                        st.write(article['description'] or "No description.")
+                    for article in articles[:5]:
+                        title = article['title']
+                        description = article['description'] or "No description available."
+                        sentiment, confidence = classify_sentiment(title)
+
+                        st.markdown(f"**{title}**")
+                        st.write(description)
+                        st.write(f"Sentiment: {sentiment} ({confidence}% confidence)")
                         st.write(f"[Read more]({article['url']})")
                         st.markdown("---")
                 else:
